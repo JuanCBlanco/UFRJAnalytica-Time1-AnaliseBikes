@@ -52,4 +52,33 @@
   - Previsão do Uso de Bikes
 
 
-testando alteração
+## Tarefas
+
+- Limpeza dos Dados
+  - Outliers
+  - Valores Vazios
+    - Poucos Casos
+  - Problemas na Tipagem dos dados
+    - Coluna de Data
+    - Passível de algumas otimizações
+  - Renomeação de dados pra melhorar a compreensão
+    - Coluna "Gender"
+- Possibilidades de Criação de Novas Variáveis
+  - Distancia da Viagem
+    - API google Maps
+    - Calculo Haversine
+      - Dado que a terra não é plana, calcular a distancia euclidiana está errado
+  - Idades dos Clientes
+  - Variáveis relacionadas a datas
+    - Mes
+    - Dia
+    - Hora
+    - Minuto
+  - Velocidade Média
+    - Pode ter pessoas que pegaram a bike e deixaram de pedalar por um período curto, mas acredito que seja um grupo pequeno
+
+### Juan
+
+### Gabriel
+
+### Gustavo
