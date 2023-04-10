@@ -3,6 +3,7 @@
 ## Juan
 
 - Limpeza dos Dados
+  - Outliers
   - Valores Vazios
     - Poucos Casos
   - Problemas na Tipagem dos dados
