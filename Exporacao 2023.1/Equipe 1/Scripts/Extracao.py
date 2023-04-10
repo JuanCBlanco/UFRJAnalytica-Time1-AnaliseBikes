@@ -9,7 +9,7 @@ def main():
     link = f"https://drive.google.com/uc?export=download&id={FILE_ID}"
 
     # Obtendo o ID do arquivo
-    pd.read_parquet(link).to_parquet("../Dados/BikeData.parquet", index=False)
+    pd.read_parquet(link).to_parquet("../Dados/BikeData-Raw.parquet", index=False)
 
 
 if __name__ == "__main__":
