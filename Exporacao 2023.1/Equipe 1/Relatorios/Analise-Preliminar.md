@@ -64,11 +64,11 @@
 
 ### Juan
 
-- Problemas na Tipagem dos dados
-  - Coluna de Data
-  - Passível de algumas otimizações
-- Renomeação de dados pra melhorar a compreensão
-  - Coluna "Gender"
+- Problemas na Tipagem dos dados -- OK
+  - Coluna de Data -- OK
+  - Passível de algumas otimizações -- OK
+- Renomeação de dados pra melhorar a compreensão -- OK
+  - Coluna "Gender" -- OK
 
 ### Gabriel
 
