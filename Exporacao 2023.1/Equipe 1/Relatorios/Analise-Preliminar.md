@@ -82,4 +82,8 @@
 ### Gustavo
 - Valores Vazios 
     - Poucos Casos
+<<<<<<< HEAD:Exporacao 2023.1/Equipe 1/Relatorios/Analise-Preliminar.md
 - Outliers
+=======
+- Outliers
+>>>>>>> 8924b52 (Adicionado pautas da reunião):Exporacao 2023.1/Equipe 1/Relatorios/Analise-Premilinar.md
