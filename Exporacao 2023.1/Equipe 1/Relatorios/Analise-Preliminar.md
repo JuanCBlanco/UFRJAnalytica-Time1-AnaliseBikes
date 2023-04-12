@@ -80,6 +80,6 @@
   - Minuto
 
 ### Gustavo
-- Valores Vazios 
+- Valores Vazios  -- OK
     - Poucos Casos
-- Outliers
+- Outliers    -- OK para dados numéricos 
