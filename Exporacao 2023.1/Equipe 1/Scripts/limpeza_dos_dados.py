@@ -17,28 +17,41 @@ log = logger.info
 
 
 class Limpeza:
+    """
+    Exemplo de Uso
+    ================================
+
+    Ler Dataset
+    df = pd.read_parquet("../Dados/BikeData-Processed.parquet")
+    Tratar dados vazios
+    df_tratado = limpeza.valores_vazios(df)
+    Remover Outliers
+    df = limpeza.remove_outliers(df_tratado)
+    """
+
     def __init__(self):
 
         '''
-        tripduration                0
-        starttime                   0
-        stoptime                    0
-        start station id           73
-        start station name         73
-        start station latitude      0
-        start station longitude     0
-        end station id             73
-        end station name           73
-        end station latitude        0
-        end station longitude       0
-        bikeid                      0
-        usertype                    0
-        birth year                  0
-        gender                      0
+        duracao_viagem:           0 tipo: numérico
+        inicio_viagem:            0 tipo: data/hora
+        fim_viagem:               0 tipo: data/hora
+        id_estacao_inicio:       73 tipo: numérico
+        nome_estacao_inicio:     73 tipo: categórico
+        estacao_inicio_latitude: 0 tipo: numérico
+        estacao_inicio_longitude: 0 tipo: numérico
+        id_estacao_fim:          73 tipo: numérico
+        nome_estacao_fim:        73 tipo: categórico
+        estacao_fim_latitude:    0 tipo: numérico
+        estacao_fim_longitude:   0 tipo: numérico
+        id_bike:                  0 tipo: numérico
+        tipo_usuario:             0 tipo: categórico
+        ano_nascimento:           0 tipo: numérico
+        genero:                   0 tipo: categórico
         dtype: int64
-
         '''
         pass
+
+
 
     @staticmethod
     def valores_vazios(dataframe):
@@ -46,7 +59,7 @@ class Limpeza:
         Identifica e trata valores vazios em um dataframe.
 
         Argumentos:
-        df -- um dataframe
+        dataframe -- um dataframe
 
         Retorno:
         Um dataframe sem valores vazios.
@@ -57,51 +70,57 @@ class Limpeza:
 
         # Tratando valores vazios
         log('Tratando valores vazios...')
-        imp_mean = SimpleImputer(missing_values=np.nan, strategy='mean')
-        df_imputed = pd.DataFrame(imp_mean.fit_transform(dataframe), columns=dataframe.columns)
+        for col in dataframe.columns:
+            if dataframe[col].dtype.name == 'category':
+                imp_mode = SimpleImputer(missing_values=np.nan, strategy='most_frequent')
+                dataframe[col] = imp_mode.fit_transform(dataframe[[col]]).ravel()
+            else:
+                imp_mean = SimpleImputer(missing_values=np.nan, strategy='mean')
+                dataframe[col] = imp_mean.fit_transform(dataframe[[col]]).ravel()
 
         log('Valores vazios tratados.')
-        return df_imputed
+        return dataframe
 
     @staticmethod
-    def outliers(dataframe, cols=None):
+    def remove_outliers(dataframe, columns=None):
         """
-        Identifica e trata outliers em um dataframe.
+        Identifica e remove outliers de um dataframe.
 
         Argumentos:
-        df -- um dataframe
-        cols -- uma lista com as colunas a serem analisadas. Se não for informado, serão analisadas todas as colunas.
+        dataframe -- um dataframe
+        columns -- uma lista com as colunas a serem analisadas. Se não for informado, todas as colunas serão analisadas.
 
         Retorno:
         Um dataframe sem outliers.
         """
         log('Identificando outliers...')
-        if cols is None:
-            cols = dataframe.columns
+        if columns is None:
+            columns = dataframe.select_dtypes(include='number').columns
 
         # Usando o método de Tukey para identificar outliers
-        for col in cols:
-            q1 = dataframe[col].quantile(0.25)
-            q3 = dataframe[col].quantile(0.75)
+        for column in columns:
+            q1 = dataframe[column].quantile(0.25)
+            q3 = dataframe[column].quantile(0.75)
             iqr = q3 - q1
             low = q1 - 1.5 * iqr
             high = q3 + 1.5 * iqr
-            outliers = dataframe[(dataframe[col] < low) | (dataframe[col] > high)]
+            outliers = dataframe[(dataframe[column] < low) | (dataframe[column] > high)]
             if len(outliers) > 0:
-                logger.info(f'{col}: {len(outliers)} outliers encontrados.')
-                logger.info(outliers)
+                log(f'{column}: {len(outliers)} outliers encontrados.')
+                # print(outliers)
 
         # Removendo outliers
         log('Removendo outliers...')
-        for col in cols:
-            q1 = dataframe[col].quantile(0.25)
-            q3 = dataframe[col].quantile(0.75)
+        num_rows_before = len(dataframe)
+        for column in columns:
+            q1 = dataframe[column].quantile(0.25)
+            q3 = dataframe[column].quantile(0.75)
             iqr = q3 - q1
             low = q1 - 1.5 * iqr
             high = q3 + 1.5 * iqr
-            dataframe = dataframe[(dataframe[col] >= low) & (dataframe[col] <= high)]
-
-        log('Outliers removidos.')
+            dataframe = dataframe[(dataframe[column] >= low) & (dataframe[column] <= high)]
+        num_rows_after = len(dataframe)
+        log(f'Outliers removidos. Tamanho antes: {num_rows_before}, tamanho depois: {num_rows_after}.')
         return dataframe
 
     def normalizacao_zscore(self, col):
@@ -112,20 +131,36 @@ class Limpeza:
 
 
 if __name__ == '__main__':
-    # import dataset
-    df = pd.read_parquet("../Dados/BikeData-Raw.parquet")
-    log(df.info)
+    # Lendo Dataset
+    df = pd.read_parquet("../Dados/BikeData-Processed.parquet")
+    # log(df.info)
 
     # Identificando valores vazios
     nulos = df.isna().sum()
     log('Quantidade de nulos: {}'.format(len(nulos)))
     log('Valores nulos:\n {}'.format(nulos))
 
+    '''     
+            Explorar ausência dos dados:
+            ==============================
+            id_estacao_inicio:   73 tipo: numérico
+            id_estacao_fim       73 tipo: numérico
+            nome_estacao_inicio  73 tipo: categórico            
+            nome_estacao_fim     73 tipo: categórico
+                   
+    '''
+
     # Preencher com valores fixos:
     # Media
 
-
-
     # classe para limpeza dos dados
     limpeza = Limpeza()
-    # limpeza.valores_vazios(df)
+    # df = df.drop(columns=['inicio_viagem', 'fim_viagem', 'nome_estacao_inicio', 'nome_estacao_fim'])
+    df_tratado = limpeza.valores_vazios(df)
+    log(f'Dataframe tratado: \n {df_tratado.isnull().sum()}')
+
+    # removendo outliers
+    df = limpeza.remove_outliers(df_tratado)
+
+    log('Outliers removido')
+
