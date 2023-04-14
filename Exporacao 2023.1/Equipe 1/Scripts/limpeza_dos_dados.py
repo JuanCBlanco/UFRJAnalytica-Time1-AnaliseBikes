@@ -52,7 +52,6 @@ class Limpeza:
         pass
 
 
-
     @staticmethod
     def valores_vazios(dataframe):
         """
