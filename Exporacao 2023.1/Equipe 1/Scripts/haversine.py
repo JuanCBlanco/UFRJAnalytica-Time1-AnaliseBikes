@@ -11,14 +11,14 @@ logger = logging.getLogger()
 log = logger.info
 
 
-limpeza = Limpeza()
-
-# Ler Dataset
-df = pd.read_parquet("../Dados/BikeData-Processed.parquet")
-# Tratar dados vazios
-df_tratado = limpeza.valores_vazios(df)
-# Remover Outliers
-df = limpeza.remove_outliers(df_tratado)
+#limpeza = Limpeza()
+#
+## Ler Dataset
+#df = pd.read_parquet("../Dados/BikeData-Processed.parquet")
+## Tratar dados vazios
+#df_tratado = limpeza.valores_vazios(df)
+## Remover Outliers
+#df = limpeza.remove_outliers(df_tratado)
 
 def haversine(estacao_inicio_latitude, estacao_inicio_longitude, estacao_fim_latitude, estacao_fim_longitude):
     """
@@ -48,8 +48,8 @@ def calculate_haversine(row):
     return haversine(row['estacao_inicio_latitude'], row['estacao_inicio_longitude'], row['estacao_fim_latitude'], row['estacao_fim_longitude'])
 
 
-df['distancia'] = df.apply(calculate_haversine, axis=1)
+#df['distancia'] = df.apply(calculate_haversine, axis=1)
 
 
-log(df)
+#log(df)
 

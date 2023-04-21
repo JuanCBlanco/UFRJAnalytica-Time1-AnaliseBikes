@@ -13,8 +13,8 @@ def main() -> None:
     df.to_parquet("../Dados/BikeData-Raw.parquet", index=False)
     
     #  Tratando os dados e salvando na pasta Dados
-    df = tratamento_dados(df)
-    df.to_parquet("../Dados/BikeData-Processed.parquet", index=False)
+    #df = tratamento_dados(df)
+    #df.to_parquet("../Dados/BikeData-Processed.parquet", index=False, engine="pyarrow", strings_to_categorical=True)
     
 
 

@@ -22,9 +22,10 @@ def tratamento_dados(df: pd.DataFrame) -> pd.DataFrame:
     ).assign(
         inicio_viagem=lambda x: pd.to_datetime(x.inicio_viagem),
         fim_viagem=lambda x: pd.to_datetime(x.fim_viagem),
-        id_estacao_inicio=lambda x: x.id_estacao_inicio.astype("Int64"),
+        id_estacao_inicio=lambda x: x.id_estacao_inicio.astype("category"),
         nome_estacao_inicio=lambda x: x.nome_estacao_inicio.astype("category"),
-        id_estacao_fim=lambda x: x.id_estacao_fim.astype("Int64"),
+        id_estacao_fim=lambda x: x.id_estacao_fim.astype("category"),
+        id_bike=lambda x: x.id_bike.astype("category"),
         nome_estacao_fim=lambda x: x.nome_estacao_fim.astype("category"),
         tipo_usuario=lambda x: x.tipo_usuario.astype("category"),
         genero=lambda x: x.genero.apply(

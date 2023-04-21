@@ -15,6 +15,12 @@ log = logger.info
 # Limpeza dos Dados
 # =================================================================
 
+def is_numeric(column):
+    try:
+        pd.to_numeric(column)
+        return True
+    except ValueError:
+        return False
 
 class Limpeza:
     """
@@ -50,8 +56,8 @@ class Limpeza:
         dtype: int64
         '''
         pass
-
-
+    
+    
     @staticmethod
     def valores_vazios(dataframe):
         """
@@ -63,22 +69,31 @@ class Limpeza:
         Retorno:
         Um dataframe sem valores vazios.
         """
+        #  Criando uma cópia do dataframe
+        _df = dataframe.copy()
+
+
         # Identificando valores vazios
         log('Identificando valores vazios...')
-        log(dataframe.isnull().sum())
+        log(_df.isnull().sum())
 
+        #  Identificando colunas com valores vazios
+        null_columns_names = _df.columns[_df.isnull().any()]
+        
         # Tratando valores vazios
         log('Tratando valores vazios...')
-        for col in dataframe.columns:
-            if dataframe[col].dtype.name == 'category':
+        for col in null_columns_names:
+            if _df[col].dtype.name == 'category':
+                log(f'Coluna {col} é categórica.')
                 imp_mode = SimpleImputer(missing_values=np.nan, strategy='most_frequent')
-                dataframe[col] = imp_mode.fit_transform(dataframe[[col]]).ravel()
-            else:
+                _df[col] = imp_mode.fit_transform(_df[[col]]).ravel()
+            elif is_numeric(_df[col]):
+                log(f'Coluna {col} é numérica.')
                 imp_mean = SimpleImputer(missing_values=np.nan, strategy='mean')
-                dataframe[col] = imp_mean.fit_transform(dataframe[[col]]).ravel()
+                _df[col] = imp_mean.fit_transform(_df[[col]]).ravel()
 
         log('Valores vazios tratados.')
-        return dataframe
+        return _df
 
     @staticmethod
     def remove_outliers(dataframe, columns=None):
@@ -92,35 +107,37 @@ class Limpeza:
         Retorno:
         Um dataframe sem outliers.
         """
+        _df = dataframe.copy()
+        
         log('Identificando outliers...')
         if columns is None:
-            columns = dataframe.select_dtypes(include='number').columns
+            columns = _df.select_dtypes(include='number').columns
 
         # Usando o método de Tukey para identificar outliers
         for column in columns:
-            q1 = dataframe[column].quantile(0.25)
-            q3 = dataframe[column].quantile(0.75)
+            q1 = _df[column].quantile(0.25)
+            q3 = _df[column].quantile(0.75)
             iqr = q3 - q1
             low = q1 - 1.5 * iqr
             high = q3 + 1.5 * iqr
-            outliers = dataframe[(dataframe[column] < low) | (dataframe[column] > high)]
+            outliers = _df[(_df[column] < low) | (_df[column] > high)]
             if len(outliers) > 0:
                 log(f'{column}: {len(outliers)} outliers encontrados.')
                 # print(outliers)
 
         # Removendo outliers
         log('Removendo outliers...')
-        num_rows_before = len(dataframe)
+        num_rows_before = len(_df)
         for column in columns:
-            q1 = dataframe[column].quantile(0.25)
-            q3 = dataframe[column].quantile(0.75)
+            q1 = _df[column].quantile(0.25)
+            q3 = _df[column].quantile(0.75)
             iqr = q3 - q1
             low = q1 - 1.5 * iqr
             high = q3 + 1.5 * iqr
-            dataframe = dataframe[(dataframe[column] >= low) & (dataframe[column] <= high)]
-        num_rows_after = len(dataframe)
+            _df = _df[(_df[column] >= low) & (_df[column] <= high)]
+        num_rows_after = len(_df)
         log(f'Outliers removidos. Tamanho antes: {num_rows_before}, tamanho depois: {num_rows_after}.')
-        return dataframe
+        return _df
 
     def normalizacao_zscore(self, col):
         # Normaliza os dados de uma coluna utilizando a técnica Z-Score
@@ -130,36 +147,36 @@ class Limpeza:
 
 
 if __name__ == '__main__':
+    pass
     # Lendo Dataset
-    df = pd.read_parquet("../Dados/BikeData-Processed.parquet")
-    # log(df.info)
-
-    # Identificando valores vazios
-    nulos = df.isna().sum()
-    log('Quantidade de nulos: {}'.format(len(nulos)))
-    log('Valores nulos:\n {}'.format(nulos))
-
-    '''     
-            Explorar ausência dos dados:
-            ==============================
-            id_estacao_inicio:   73 tipo: numérico
-            id_estacao_fim       73 tipo: numérico
-            nome_estacao_inicio  73 tipo: categórico            
-            nome_estacao_fim     73 tipo: categórico
-                   
-    '''
-
-    # Preencher com valores fixos:
-    # Media
-
-    # classe para limpeza dos dados
-    limpeza = Limpeza()
-    # df = df.drop(columns=['inicio_viagem', 'fim_viagem', 'nome_estacao_inicio', 'nome_estacao_fim'])
-    df_tratado = limpeza.valores_vazios(df)
-    log(f'Dataframe tratado: \n {df_tratado.isnull().sum()}')
-
-    # removendo outliers
-    df = limpeza.remove_outliers(df_tratado)
-
-    log('Outliers removido')
+    #df = pd.read_parquet("../Dados/BikeData-Processed.parquet")
+    ## log(df.info)
+#
+    ## Identificando valores vazios
+    #nulos = df.isna().sum()
+    #log('Quantidade de nulos: {}'.format(len(nulos)))
+    #log('Valores nulos:\n {}'.format(nulos))
+#
+    #'''     
+    #        Explorar ausência dos dados:
+    #        ==============================
+    #        id_estacao_inicio:   73 tipo: numérico
+    #        id_estacao_fim       73 tipo: numérico
+    #        nome_estacao_inicio  73 tipo: categórico            
+    #        nome_estacao_fim     73 tipo: categórico
+    #               
+    #'''
+#
+    ## Preencher com valores fixos:
+    ## Media
+#
+    ## classe para limpeza dos dados
+    #limpeza = Limpeza()
+    ## df = df.drop(columns=['inicio_viagem', 'fim_viagem', 'nome_estacao_inicio', 'nome_estacao_fim'])
+    #df_tratado = limpeza.valores_vazios(df)
+    #log(f'Dataframe tratado: \n {df_tratado.isnull().sum()}')
+#
+    ## removendo outliers
+    #df = limpeza.remove_outliers(df_tratado)
+    #log('Outliers removido')
 
