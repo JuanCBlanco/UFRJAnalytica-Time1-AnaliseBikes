@@ -6,6 +6,8 @@ import statsmodels.api as sm
 import logging
 
 # Configurando o logger
+from sklearn.preprocessing import StandardScaler
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger()
 log = logger.info

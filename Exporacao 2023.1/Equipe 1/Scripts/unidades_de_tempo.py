@@ -35,6 +35,7 @@ class Tempo:
         df['hora_fim'] = df['fim_viagem'].dt.hour
         df['minuto_fim'] = df['fim_viagem'].dt.minute
         df['segundo_fim'] = df['fim_viagem'].dt.second
+        df['idade'] = df['ano_inicio'] - df['ano_nascimento']
 
         log(df)
 

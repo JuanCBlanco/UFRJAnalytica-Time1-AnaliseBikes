@@ -3,10 +3,8 @@ import pandas as pd
 import numpy as np
 import math
 import datetime
-
 from limpeza_dos_dados import Limpeza
 from haversine import haversine
-
 import plotly.express as px
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
@@ -109,7 +107,7 @@ def extrair_dados() -> object:
 # Essa distribuição se mantém em todos os dias da semana?
 # Há diferenças entre dias úteis e finais de semana?
 
-
+# Não funciona
 def distribuicao_uso_bicicletas_dias_semana(df):
     """
     Esta função plota um gráfico de barras para mostrar a distribuição do uso de bicicletas ao longo da semana.
@@ -123,17 +121,17 @@ def distribuicao_uso_bicicletas_dias_semana(df):
     pickups_por_dia_semana = df.groupby('dia_semana')['distancia'].count().reset_index()
 
     # Definindo a ordem dos dias da semana para aparecer no gráfico
-    dias_da_semana = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    dias_da_semana = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
     pickups_por_dia_semana['dia_semana'] = pd.Categorical(pickups_por_dia_semana['dia_semana'],
                                                           categories=dias_da_semana, ordered=True)
 
     # Plotando o gráfico de barras
-    fig = px.bar(pickups_por_dia_semana, x='dia_semana', y='distancia')
+    fig = px.bar(pickups_por_dia_semana, x='dia semana', y='distancia')
 
     return fig
 
 
-
+# Ok
 def distribuicao_uso_bicicletas_horarios(df):
     pickups_por_horario = df.groupby('hora_inicio')['distancia'].count().reset_index()
 
@@ -185,11 +183,287 @@ def diferenca_dias_uteis_finais_semana(df):
 
     return diferenca
 
+#---------------------------------
+# Novas plotagens
+#---------------------------------
 
-# if __name__ == '__main__':
-#     df = pd.DataFrame()  # Or define df as the result of another function call, if applicable
-#     df = extrair_dados()
-#     distribuicao_uso_bicicletas_dias_semana(df)
-#     distribuicao_uso_bicicletas_horarios(df)
-#     distribuicao_uso_bicicletas_dias_semana_horarios(df)
-#     diferenca_dias_uteis_finais_semana(df)
+
+def distribuicao_uso_bicicletas_mes(df):
+    pickups_por_mes = df.groupby('mes_inicio')['distancia'].count().reset_index()
+    pickups_por_mes['mes_inicio'] = pickups_por_mes['mes_inicio'].apply(lambda x: str(x).zfill(2))
+
+    fig = px.bar(pickups_por_mes, x='mes_inicio', y='distancia', color='mes_inicio')
+    fig.update_layout(
+        title_text="Distribuição do uso das bicicletas por mês",
+        xaxis_title_text="Mês",
+        yaxis_title_text="Número de viagens",
+        bargap=0.1,
+    )
+    fig.show()
+
+
+# Fazer Gráfico de Pizza
+def distribuicao_uso_bicicletas_ano(df):
+    pickups_por_ano = df.groupby('ano_inicio')['distancia'].count().reset_index()
+
+    fig = go.Figure(data=[go.Pie(labels=pickups_por_ano['ano_inicio'], values=pickups_por_ano['distancia'])])
+    fig.update_layout(
+        title_text="Distribuição do uso das bicicletas por ano",
+    )
+    fig.show()
+
+
+# Ok
+def distribuicao_uso_bicicletas_genero(df):
+    pickups_por_genero = df.groupby('genero')['distancia'].count().reset_index()
+
+    fig = px.pie(pickups_por_genero, values='distancia', names='genero')
+    fig.update_layout(
+        title_text="Distribuição do uso das bicicletas por gênero",
+        showlegend=False,
+    )
+    fig.show()
+
+
+# Ok
+def distribuicao_uso_bicicletas_idade(df):
+    # Calculando a idade das pessoas que alugaram as bicicletas
+    df['idade'] = 2023 - df['ano_nascimento']
+
+    # Criando as faixas etárias
+    bins = [0, 18, 25, 35, 50, 65, 120]
+    labels = ['<18', '18-24', '25-34', '35-49', '50-64', '65+']
+    df['faixa_etaria'] = pd.cut(df['idade'], bins=bins, labels=labels)
+
+    pickups_por_faixa_etaria = df.groupby('faixa_etaria')['distancia'].count().reset_index()
+
+    fig = px.bar(pickups_por_faixa_etaria, x='faixa_etaria', y='distancia')
+    fig.update_layout(
+        title_text="Distribuição do uso das bicicletas por faixa etária",
+        xaxis_title_text="Faixa etária",
+        yaxis_title_text="Número de viagens",
+        bargap=0.1,
+    )
+    fig.show()
+
+
+def distribuicao_uso_bicicletas_tipo_usuario(df):
+    """
+    Esta função plota um gráfico de pizza para mostrar a distribuição do uso de bicicletas por tipo de usuário.
+    """
+    # Verifica se o DataFrame está vazio
+    if df.empty:
+        print("Erro: DataFrame vazio.")
+        return None
+
+    # Criando um dataframe para contar o número de viagens por tipo de usuário
+    contagem_usuarios = df.groupby('tipo_usuario')['distancia'].count().reset_index()
+
+    # Plotando o gráfico de pizza
+    fig = px.pie(contagem_usuarios, values='distancia', names='tipo_usuario', hole=0.5)
+    fig.update_layout(
+        title_text="Distribuição do uso das bicicletas por tipo de usuário",
+    )
+    fig.show()
+
+# Mais ou menos
+def correlacao_duracao_distancia(df):
+    """
+    Esta função plota um gráfico de dispersão para mostrar a correlação entre a duração da viagem e a distância percorrida.
+    """
+
+    # Plotando o gráfico de dispersão
+    fig = px.scatter(df, x="duracao_viagem", y="distancia")
+    fig.update_layout(
+        title_text="Correlação entre duração da viagem e distância percorrida",
+        xaxis_title_text="Duração da viagem (min)",
+        yaxis_title_text="Distância percorrida (km)",
+    )
+    fig.show()
+
+
+# def correlacao_horario_duracao(df):
+#     """
+#     Esta função plota um gráfico de dispersão para mostrar a correlação entre o horário de início da viagem e a duração da viagem.
+#     """
+#     # Verifica se o DataFrame está vazio
+#     if df.empty:
+#         print("Erro: DataFrame vazio.")
+#         return None
+#
+#     # Calculando a duração da viagem em segundos
+#     df['duracao'] = ((df['hora_fim'] - df['hora_inicio']))
+#
+#
+#     # Plotando o gráfico de dispersão
+#     fig = px.scatter(df, x="hora_inicio", y="duracao")
+#     fig.update_layout(
+#         title_text="Correlação entre horário de início da viagem e duração da viagem",
+#         xaxis_title_text="Horário de início da viagem",
+#         yaxis_title_text="Duração da viagem (segundos)",
+#     )
+#     fig.show()
+
+# Not working properly
+# Not working properly
+def correlacao_horario_duracao(df):
+    """
+    Esta função plota um gráfico de dispersão para mostrar a correlação entre o horário de início da viagem e a duração da viagem.
+    """
+    # Verifica se o DataFrame está vazio
+    if df.empty:
+        print("Erro: DataFrame vazio.")
+        return None
+
+    # Plotando o gráfico de dispersão
+    fig = px.scatter(df, x="hora_inicio", y="hora_fim")
+    fig.update_layout(
+        title_text="Correlação entre horário de início da viagem e duração da viagem",
+        xaxis_title_text="Horário de início da viagem",
+        yaxis_title_text="Duração da viagem (min)",
+    )
+    fig.show()
+
+
+# Not working properly
+def mapa_calor_horarios_uso(df):
+    """
+    Esta função plota um mapa de calor para mostrar a distribuição dos horários de uso das bicicletas ao longo dos dias da semana.
+    """
+    # Verifica se o DataFrame está vazio
+    if df.empty:
+        print("Erro: DataFrame vazio.")
+        return None
+
+    # Cria um novo dataframe com as colunas de dia da semana e hora de início
+    df_mapa_calor = df[['dia_semana', 'hora_inicio']]
+
+    # Cria uma coluna com o valor 1 para cada viagem
+    df_mapa_calor['count'] = 1
+
+    # Agrupa os valores por dia da semana e hora de início e soma o número de viagens
+    df_mapa_calor = df_mapa_calor.groupby(['dia_semana', 'hora_inicio']).sum().reset_index()
+
+    # Cria o mapa de calor
+    fig = px.imshow(df_mapa_calor.pivot('dia_semana', 'hora_inicio', 'count'),
+                    x=['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                    y=['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+                    color_continuous_scale='reds')
+
+    fig.update_layout(
+        title_text="Distribuição dos horários de uso das bicicletas ao longo dos dias da semana"
+    )
+
+    return fig
+
+# Not working properly
+def evolucao_num_viagens_ano(df):
+    """
+    Esta função plota um gráfico de linha para mostrar a evolução do número de viagens ao longo dos anos.
+    """
+    # Verifica se o DataFrame está vazio
+    if df.empty:
+        print("Erro: DataFrame vazio.")
+        return None
+
+    # Cria um novo dataframe com as colunas de data de início e número de viagens
+    df_evolucao = df[['data_inicio', 'id']].copy()
+
+    # Agrupa os valores por ano e conta o número de viagens
+    df_evolucao = df_evolucao.groupby(df_evolucao['data_inicio'].dt.year)['id'].count().reset_index()
+
+    # Cria o gráfico de linha
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=df_evolucao['data_inicio'], y=df_evolucao['id'], mode='lines+markers'))
+
+    fig.update_layout(
+        title_text="Evolução do número de viagens ao longo dos anos",
+        xaxis_title="Ano",
+        yaxis_title="Número de viagens"
+    )
+
+    return fig
+
+
+# ok
+def distribuicao_idades(df):
+    """
+    Esta função plota um gráfico de barras para mostrar a distribuição das idades dos usuários.
+    """
+    # Verifica se o DataFrame está vazio
+    if df.empty:
+        print("Erro: DataFrame vazio.")
+        return None
+
+    # Criando um histograma com a distribuição das idades
+    fig = px.histogram(df, x='idade', nbins=20)
+    fig.update_layout(title='Distribuição das idades dos usuários')
+    fig.show()
+
+
+# Not working properly
+def relacao_idade_duracao_media(df):
+    """
+    Esta função plota um gráfico de dispersão para mostrar a relação entre a idade dos usuários e a duração média das viagens.
+    """
+    # Verifica se o DataFrame está vazio
+    if df.empty:
+        print("Erro: DataFrame vazio.")
+        return None
+
+    # Criando um scatter plot com a relação entre idade e duração média
+    fig = px.scatter(df, x='idade', y='duracao_viagem_media')
+    fig.update_layout(title='Relação entre idade dos usuários e duração média das viagens')
+    fig.show()
+
+
+# Not working properly
+def relacao_idade_distancia_media(df):
+    """
+    Esta função plota um gráfico de dispersão para mostrar a relação entre a idade dos usuários e a distância média percorrida nas viagens.
+    """
+    # Verifica se o DataFrame está vazio
+    if df.empty:
+        print("Erro: DataFrame vazio.")
+        return None
+
+    # Criando um scatter plot com a relação entre idade e distância média percorrida
+    fig = px.scatter(df, x='idade', y='distancia_media')
+    fig.update_layout(title='Relação entre idade dos usuários e distância média percorrida nas viagens')
+    fig.show()
+
+
+
+def dispersao_idade_velocidade(df):
+    """
+    Esta função plota um gráfico de dispersão para mostrar a relação entre a idade dos usuários e a velocidade média das viagens.
+    """
+    # Verifica se o DataFrame está vazio
+    if df.empty:
+        print("Erro: DataFrame vazio.")
+        return None
+
+    # Cálculo da velocidade média das viagens
+    df['velocidade_media'] = df['distancia_percorrida'] / df['duracao_viagem']
+
+    # Criação do gráfico de dispersão
+    fig = px.scatter(df, x='idade_usuario', y='velocidade_media', trendline='ols',
+                     title='Relação entre Idade dos Usuários e Velocidade Média das Viagens')
+
+    # Personalização do layout do gráfico
+    fig.update_layout(xaxis_title='Idade do Usuário', yaxis_title='Velocidade Média (km/h)', font=dict(size=12))
+
+    # Exibição do gráfico
+    fig.show()
+
+
+
+
+if __name__ == '__main__':
+    df = pd.DataFrame()  # Or define df as the result of another function call, if applicable
+    df = extrair_dados()
+    # distribuicao_distancias(df)
+    # relacao_idade_duracao_media(df)
+    # correlacao_tipo_usuario_tipo_bicicleta(df)
+    # evolucao_num_viagens_ano(df)
+    # distribuicao_uso_bicicletas_mes(df)
